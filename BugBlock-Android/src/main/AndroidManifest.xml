@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.nestor87.bugblock"
+    android:versionCode="1"
+    android:versionName="1.0.0">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+
+    <application>
+        <service
+            android:name=".service.ShakeObserverService"
+            android:enabled="true"
+            android:exported="false" />
+        <service
+            android:name=".service.ScreenshotObserverService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <activity android:name=".ui.screenshotDraw.ScreenshotDrawActivity" android:taskAffinity="com.nestor87.bugblock.issue_reporting" />
+        <activity android:name=".ui.reportIssue.ReportIssueActivity" android:taskAffinity="com.nestor87.bugblock.issue_reporting" />
+    </application>
+
+</manifest>

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Bug reporting tool</string>
+    <string name="title">Report a bug</string>
+    <string name="description_button_text">Add description</string>
+    <string name="email">E-mail</string>
+    <string name="notes">Write some notes here…</string>
+    <string name="include_screenshot_message">To help us to fix a bug, this report will include a screenshot</string>
+    <string name="send_report">Send report</string>
+    <string name="report_successful">The report was sent successfully</string>
+    <string name="report_unsuccessful">An error occurred while sending the report</string>
+    <string name="report_image_send_unsuccessful">An error occurred while sending the screenshot</string>
+    <string name="error_field_blank">This field cannot be a blank</string>
+</resources>

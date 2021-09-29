@@ -1,0 +1,2 @@
+rootProject.name = "BugBlock-android"
+include ':BugBlock-Android'
