@@ -32,7 +32,7 @@ internal class Reporter {
                     return true
                 } else {
                     val requestFile = image.asRequestBody("image/*".toMediaTypeOrNull())
-                    val body = MultipartBody.Part.createFormData("image", "image", requestFile)
+                    val body = MultipartBody.Part.createFormData("image", "image.png", requestFile)
                     val screenshotResponse = Network.retrofit.addImageToIssue(
                         BBLog.appId,
                         issueResponse.id,
