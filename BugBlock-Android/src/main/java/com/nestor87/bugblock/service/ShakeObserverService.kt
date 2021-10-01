@@ -97,7 +97,7 @@ internal class ShakeObserverService : Service(), SensorEventListener {
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
     override fun onDestroy() {
-        sensorManager!!.unregisterListener(this)
+        sensorManager?.unregisterListener(this)
         super.onDestroy()
     }
 
