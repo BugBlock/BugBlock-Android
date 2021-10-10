@@ -27,8 +27,8 @@
 
         <ImageView
             android:id="@+id/closeButton"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/ic_remove_icon"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -76,16 +76,6 @@
         android:layout_marginStart="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
-
-    <ImageView
-        android:id="@+id/removeScreenshotButton"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_remove_icon"
-        android:layout_marginStart="-10dp"
-        android:layout_marginTop="-10dp"
-        app:layout_constraintStart_toEndOf="@+id/screenshotImage"
-        app:layout_constraintTop_toTopOf="@+id/screenshotImage" />
 
     <TextView
         android:id="@+id/includeScreenshotMessage"
