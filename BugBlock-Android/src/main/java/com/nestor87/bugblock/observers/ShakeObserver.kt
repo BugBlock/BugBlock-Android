@@ -1,8 +1,11 @@
 package com.nestor87.bugblock.observers
 
+import android.app.Activity
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,9 +15,10 @@ import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import com.nestor87.bugblock.ui.reportIssue.ReportIssueActivity
+import com.nestor87.bugblock.ui.screenshotDraw.ScreenshotDrawActivity
 import kotlin.math.abs
 
-internal class ShakeObserver : Service(), SensorEventListener {
+internal class ShakeObserver(val context: Context): SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var firstDirectionChangeTime: Long = 0
@@ -25,16 +29,6 @@ internal class ShakeObserver : Service(), SensorEventListener {
     private var lastZ = 0f
 
     companion object {
-        fun startService(context: Context) {
-            val startIntent = Intent(context, ShakeObserver::class.java)
-            context.startService(startIntent)
-        }
-
-        fun stopService(context: Context) {
-            val stopIntent = Intent(context, ShakeObserver::class.java)
-            context.stopService(stopIntent)
-        }
-
         private const val MIN_FORCE = 11
         private const val MIN_DIRECTION_CHANGE = 3
         private const val MAX_PAUSE_BETWEEN_DIRECTION_CHANGE = 200
@@ -42,15 +36,14 @@ internal class ShakeObserver : Service(), SensorEventListener {
 
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
-
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+    fun start() {
+        sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
         sensorManager!!.registerListener(this, sensorManager!!
             .getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL)
-        return START_STICKY
+    }
+
+    fun stop() {
+        sensorManager?.unregisterListener(this)
     }
 
     override fun onSensorChanged(event: SensorEvent) {
@@ -93,11 +86,6 @@ internal class ShakeObserver : Service(), SensorEventListener {
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
 
-    override fun onDestroy() {
-        sensorManager?.unregisterListener(this)
-        super.onDestroy()
-    }
-
     private fun resetShakeParameters() {
         firstDirectionChangeTime = 0
         directionChangeCount = 0
@@ -110,17 +98,41 @@ internal class ShakeObserver : Service(), SensorEventListener {
     private fun onShakeDetected() {
         if (!ReportIssueActivity.running) {
             vibrate(300L)
-
+            saveBitmap(
+                context,
+                takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
+                "screenshot"
+            )
+            context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
         }
     }
 
     private fun vibrate(duration: Long) {
-        val vibrator = applicationContext?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= 26) {
             vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             vibrator.vibrate(duration)
         }
     }
+
+    private fun takeScreenshot(): Bitmap {
+        val rootView = (context as Activity).window.decorView.rootView
+        val bitmap = Bitmap.createBitmap(
+            rootView.width,
+            rootView.height,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        rootView.draw(canvas)
+        return bitmap
+    }
+
+    private fun saveBitmap(context: Context, bitmap: Bitmap, name: String) {
+        val fileOutputStream = context.openFileOutput("$name.png", Context.MODE_PRIVATE)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+        fileOutputStream.close()
+    }
+
 
 }

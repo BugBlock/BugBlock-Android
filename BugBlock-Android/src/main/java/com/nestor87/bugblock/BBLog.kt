@@ -47,7 +47,8 @@ class BBLog(val context: Context) {
             screenshotObserver.start()
         }
         if (configuration.invokeByShake) {
-            ShakeObserver.startService(context)
+            val shakeObserver = ShakeObserver(context)
+            shakeObserver.start()
         }
         if (configuration.crashReportingEnabled) {
             CrashLogger.startCrashDetecting(context)
