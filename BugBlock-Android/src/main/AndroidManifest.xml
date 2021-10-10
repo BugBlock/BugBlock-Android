@@ -11,15 +11,6 @@
 
 
     <application>
-        <service
-            android:name=".service.ShakeObserverService"
-            android:enabled="true"
-            android:exported="false" />
-        <service
-            android:name=".service.ScreenshotObserverService"
-            android:enabled="true"
-            android:exported="false" />
-
         <activity android:name=".ui.screenshotDraw.ScreenshotDrawActivity" android:taskAffinity="com.nestor87.bugblock.issue_reporting" />
         <activity android:name=".ui.reportIssue.ReportIssueActivity" android:taskAffinity="com.nestor87.bugblock.issue_reporting" />
     </application>

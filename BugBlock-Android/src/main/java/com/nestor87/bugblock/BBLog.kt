@@ -1,21 +1,19 @@
 package com.nestor87.bugblock
 
-import android.content.ClipDescription
 import android.content.Context
 import android.os.Build
 import com.nestor87.bugblock.data.BBConfiguration
 import com.nestor87.bugblock.data.BBSharedPreferences
 import com.nestor87.bugblock.data.BBUser
 import com.nestor87.bugblock.data.dto.ConsoleLogLevel
-import com.nestor87.bugblock.data.dto.Issue
 import com.nestor87.bugblock.data.network.Network
 import com.nestor87.bugblock.loggers.ConsoleLogger
 import com.nestor87.bugblock.loggers.CrashLogger
 import com.nestor87.bugblock.loggers.NetworkLogger
-import com.nestor87.bugblock.service.ScreenshotObserverService
+import com.nestor87.bugblock.observers.ScreenshotObserver
 import com.nestor87.bugblock.data.dto.Metadata
 import com.nestor87.bugblock.reporter.Reporter
-import com.nestor87.bugblock.service.ShakeObserverService
+import com.nestor87.bugblock.observers.ShakeObserver
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.Interceptor
@@ -45,10 +43,11 @@ class BBLog(val context: Context) {
         metadata = getMetadata()
 
         if (configuration.invokeByScreenshot) {
-            ScreenshotObserverService.startService(context)
+            val screenshotObserver = ScreenshotObserver(context)
+            screenshotObserver.start()
         }
         if (configuration.invokeByShake) {
-            ShakeObserverService.startService(context)
+            ShakeObserver.startService(context)
         }
         if (configuration.crashReportingEnabled) {
             CrashLogger.startCrashDetecting(context)

@@ -7,6 +7,8 @@ import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.ViewModel
@@ -66,6 +68,13 @@ internal class ScreenshotDrawViewModel: ViewModel() {
         fileOutputStream.close()
     }
 
+    fun loadBitmap(context: Context, name: String): Bitmap? {
+        val fileInputStream = context.openFileInput("$name.png")
+        val bitmap = BitmapFactory.decodeStream(fileInputStream)
+        fileInputStream.close()
+        return bitmap
+    }
+
     fun addRoundedCornersToBitmap(context: Context, bitmap: Bitmap, radiusDp: Float): Bitmap {
         val output = Bitmap.createBitmap(bitmap.width, bitmap.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(output)
@@ -81,6 +90,23 @@ internal class ScreenshotDrawViewModel: ViewModel() {
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
         canvas.drawBitmap(bitmap, rect, rect, paint)
         return output
+    }
+
+    fun getScreenSize(windowManager: WindowManager): Point {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val windowInsets = windowManager.currentWindowMetrics.windowInsets
+            var insets: Insets = windowInsets.getInsets(WindowInsets.Type.navigationBars())
+            windowInsets.displayCutout?.run {
+                insets = Insets.max(insets, Insets.of(safeInsetLeft, safeInsetTop, safeInsetRight, safeInsetBottom))
+            }
+            val insetsWidth = insets.right + insets.left
+            val insetsHeight = insets.top + insets.bottom
+            Point(windowManager.currentWindowMetrics.bounds.width() - insetsWidth, windowManager.currentWindowMetrics.bounds.height() - insetsHeight)
+        } else {
+            Point().apply {
+                windowManager.defaultDisplay.getSize(this)
+            }
+        }
     }
 
 }

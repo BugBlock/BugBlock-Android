@@ -1,14 +1,9 @@
 package com.nestor87.bugblock.ui.screenshotDraw
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.ImageDecoder
 import android.graphics.PorterDuff
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -22,19 +17,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.children
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.single.PermissionListener
 import com.nestor87.bugblock.R
-import com.nestor87.bugblock.view.CanvasView
 import com.nestor87.bugblock.ui.reportIssue.ReportIssueActivity
+import com.nestor87.bugblock.view.CanvasView
 import kotlin.math.roundToInt
 
 
-internal class ScreenshotDrawActivity : AppCompatActivity(), PermissionListener {
+internal class ScreenshotDrawActivity : AppCompatActivity() {
 
     private val viewModel = ScreenshotDrawViewModel()
 
@@ -73,7 +62,34 @@ internal class ScreenshotDrawActivity : AppCompatActivity(), PermissionListener 
         addDescriptionButton = findViewById(R.id.addDescriptionButton)
         colorSelectButtonsLinearLayout = findViewById(R.id.colorSelectButtonsLinearLayout)
 
-        requestReadExternalStoragePermission()
+        var screenshotBitmap = viewModel.loadBitmap(this, "screenshot")!!
+
+
+        window.decorView.post {
+            val marginVertical = 40f
+            var scale = viewModel.calculateScreenshotImageHeight(marginVertical, brushButton, addDescriptionButton) / screenshotBitmap.height
+            screenshotCanvasView.layoutParams.height = (screenshotBitmap.height * scale).roundToInt()
+            screenshotCanvasView.layoutParams.width = (screenshotBitmap.width * scale).roundToInt()
+
+            screenshotCanvasView.y = viewModel.calculateViewRectOnScreen(brushButton).bottom + marginVertical
+
+            screenshotCanvasView.requestLayout()
+
+            screenshotBitmap = viewModel.getResizedBitmap(screenshotBitmap, screenshotCanvasView.layoutParams.width, screenshotCanvasView.layoutParams.height)
+
+            screenshotCanvasView.drawBitmap(screenshotBitmap)
+
+
+            screenshotBorderView = View(this)
+            screenshotBorderView.setBackgroundResource(R.drawable.screenshot_canvasview_border)
+            screenshotBorderView.layoutParams = ViewGroup.LayoutParams(screenshotCanvasView.layoutParams)
+            screenshotBorderView.y = screenshotCanvasView.y - viewModel.convertDpToPx(this,1F).roundToInt()
+            screenshotBorderView.x = (viewModel.getScreenSize(windowManager).x.toFloat() - screenshotCanvasView.layoutParams.width) / 2 - viewModel.convertDpToPx(this, 1F).roundToInt()
+            screenshotBorderView.layoutParams.width += viewModel.convertDpToPx(this, 2F).roundToInt()
+            screenshotBorderView.layoutParams.height += viewModel.convertDpToPx(this, 2F).roundToInt()
+            (screenshotCanvasView.parent as ConstraintLayout).addView(screenshotBorderView, 0)
+            screenshotBorderView.requestLayout()
+        }
 
         closeButton.setOnClickListener {
             finish()
@@ -199,59 +215,6 @@ internal class ScreenshotDrawActivity : AppCompatActivity(), PermissionListener 
                 startActivity(intent)
             }
         }
-    }
-
-    private fun requestReadExternalStoragePermission() {
-        Dexter.withContext(this)
-            .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-            .withListener(this)
-            .check()
-    }
-
-    override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
-        val screenshotUri = Uri.parse(intent.getStringExtra("screenshotUri"));
-        var screenshotBitmap =
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                MediaStore.Images.Media.getBitmap(this.contentResolver, screenshotUri)
-            } else {
-                val source: ImageDecoder.Source = ImageDecoder.createSource(this.contentResolver, screenshotUri)
-                ImageDecoder.decodeBitmap(source)
-            }
-
-
-        window.decorView.post {
-            val marginVertical = 40f
-            var scale = viewModel.calculateScreenshotImageHeight(marginVertical, brushButton, addDescriptionButton) / screenshotBitmap.height
-            screenshotCanvasView.layoutParams.height = (screenshotBitmap.height * scale).roundToInt()
-            screenshotCanvasView.layoutParams.width = (screenshotBitmap.width * scale).roundToInt()
-
-            screenshotCanvasView.y = viewModel.calculateViewRectOnScreen(brushButton).bottom + marginVertical
-
-            screenshotCanvasView.requestLayout()
-
-            screenshotBitmap = viewModel.getResizedBitmap(screenshotBitmap, screenshotCanvasView.layoutParams.width, screenshotCanvasView.layoutParams.height)
-
-            screenshotCanvasView.drawBitmap(screenshotBitmap)
-
-
-            screenshotBorderView = View(this)
-            screenshotBorderView.setBackgroundResource(R.drawable.screenshot_canvasview_border)
-            screenshotBorderView.layoutParams = ViewGroup.LayoutParams(screenshotCanvasView.layoutParams)
-            screenshotBorderView.y = screenshotCanvasView.y - viewModel.convertDpToPx(this,1F).roundToInt()
-            screenshotBorderView.x = (windowManager.currentWindowMetrics.bounds.width().toFloat() - screenshotCanvasView.layoutParams.width) / 2 - viewModel.convertDpToPx(this,1F).roundToInt()
-            screenshotBorderView.layoutParams.width += viewModel.convertDpToPx(this, 2F).roundToInt()
-            screenshotBorderView.layoutParams.height += viewModel.convertDpToPx(this, 2F).roundToInt()
-            (screenshotCanvasView.parent as ConstraintLayout).addView(screenshotBorderView, 0)
-            screenshotBorderView.requestLayout()
-        }
-    }
-
-    override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
-        requestReadExternalStoragePermission()
-    }
-
-    override fun onPermissionRationaleShouldBeShown(p0: PermissionRequest?, token: PermissionToken?) {
-        token!!.continuePermissionRequest()
     }
 
 }

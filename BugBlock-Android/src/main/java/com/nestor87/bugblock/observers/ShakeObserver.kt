@@ -1,4 +1,4 @@
-package com.nestor87.bugblock.service
+package com.nestor87.bugblock.observers
 
 import android.app.Service
 import android.content.Context
@@ -11,13 +11,10 @@ import android.os.Build
 import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.widget.Toast
 import com.nestor87.bugblock.ui.reportIssue.ReportIssueActivity
-import com.nestor87.bugblock.ui.screenshotDraw.ScreenshotDrawActivity
 import kotlin.math.abs
-import kotlin.math.sqrt
 
-internal class ShakeObserverService : Service(), SensorEventListener {
+internal class ShakeObserver : Service(), SensorEventListener {
 
     private var sensorManager: SensorManager? = null
     private var firstDirectionChangeTime: Long = 0
@@ -29,12 +26,12 @@ internal class ShakeObserverService : Service(), SensorEventListener {
 
     companion object {
         fun startService(context: Context) {
-            val startIntent = Intent(context, ShakeObserverService::class.java)
+            val startIntent = Intent(context, ShakeObserver::class.java)
             context.startService(startIntent)
         }
 
         fun stopService(context: Context) {
-            val stopIntent = Intent(context, ShakeObserverService::class.java)
+            val stopIntent = Intent(context, ShakeObserver::class.java)
             context.stopService(stopIntent)
         }
 
@@ -113,13 +110,11 @@ internal class ShakeObserverService : Service(), SensorEventListener {
     private fun onShakeDetected() {
         if (!ReportIssueActivity.running) {
             vibrate(300L)
-            val intent = Intent(this@ShakeObserverService, ReportIssueActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
+
         }
     }
 
-    fun vibrate(duration: Long) {
+    private fun vibrate(duration: Long) {
         val vibrator = applicationContext?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= 26) {
             vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))

@@ -1,43 +1,34 @@
-package com.nestor87.bugblock.service
+package com.nestor87.bugblock.observers
 
-import android.app.Service
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.database.ContentObserver
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
 import com.nestor87.bugblock.ui.screenshotDraw.ScreenshotDrawActivity
 import java.io.File
 
-internal class ScreenshotObserverService : Service() {
+
+internal class ScreenshotObserver(val context: Context) {
+
     private lateinit var contentObserver: ContentObserver
     private var lastUri = ""
 
-
-    companion object {
-
-        fun startService(context: Context) {
-            val startIntent = Intent(context, ScreenshotObserverService::class.java)
-            context.startService(startIntent)
-        }
-
-        fun stopService(context: Context) {
-            val stopIntent = Intent(context, ScreenshotObserverService::class.java)
-            context.stopService(stopIntent)
-        }
-
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    fun start() {
         startObserveScreenshot()
-        startObserveLogs()
-
-        return START_NOT_STICKY
     }
+
+    fun stop() {
+        context.contentResolver.unregisterContentObserver(contentObserver)
+    }
+
 
     private fun startObserveScreenshot() {
-        val screenshotsPath = File(applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "Screenshots")
+        val screenshotsPath = File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "Screenshots")
 
         contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean, uri: Uri?) {
@@ -47,15 +38,17 @@ internal class ScreenshotObserverService : Service() {
                     lastUri = uri.toString()
 
                     vibrate(300L)
-                    val intent = Intent(this@ScreenshotObserverService, ScreenshotDrawActivity::class.java)
-                    intent.putExtra("screenshotUri", uri.toString())
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
+                    saveBitmap(
+                        context,
+                        takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
+                        "screenshot"
+                    )
+                    context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
                 }
             }
         }
 
-        applicationContext.contentResolver.registerContentObserver(
+        context.contentResolver.registerContentObserver(
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
             true,
             contentObserver
@@ -73,7 +66,7 @@ internal class ScreenshotObserverService : Service() {
         val projection = arrayOf(
             MediaStore.Images.Media.DATA
         )
-        applicationContext.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
             val dataColumn = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
             while (cursor.moveToNext()) {
                 val path = cursor.getString(dataColumn)
@@ -89,7 +82,7 @@ internal class ScreenshotObserverService : Service() {
             MediaStore.Images.Media.DISPLAY_NAME,
             MediaStore.Images.Media.RELATIVE_PATH
         )
-        applicationContext.contentResolver.query(uri, projection,null, null, null)?.use { cursor ->
+        context.contentResolver.query(uri, projection,null, null, null)?.use { cursor ->
             val relativePathColumn = cursor.getColumnIndex(MediaStore.Images.Media.RELATIVE_PATH)
             val displayNameColumn = cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME)
             while (cursor.moveToNext()) {
@@ -102,24 +95,31 @@ internal class ScreenshotObserverService : Service() {
         }
     }
 
-    private fun startObserveLogs() {
-    }
-
-    override fun onBind(intent: Intent): IBinder? {
-        return null
-    }
-
-    override fun onDestroy() {
-        applicationContext.contentResolver.unregisterContentObserver(contentObserver)
-        super.onDestroy()
-    }
-
-    fun vibrate(duration: Long) {
-        val vibrator = applicationContext?.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private fun vibrate(duration: Long) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= 26) {
             vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             vibrator.vibrate(duration)
         }
     }
+
+    private fun takeScreenshot(): Bitmap {
+        val rootView = (context as Activity).window.decorView.rootView
+        val bitmap = Bitmap.createBitmap(
+            rootView.width,
+            rootView.height,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        rootView.draw(canvas)
+        return bitmap
+    }
+
+    private fun saveBitmap(context: Context, bitmap: Bitmap, name: String) {
+        val fileOutputStream = context.openFileOutput("$name.png", Context.MODE_PRIVATE)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+        fileOutputStream.close()
+    }
+
 }
