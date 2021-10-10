@@ -10,6 +10,7 @@ import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import com.nestor87.bugblock.R
+import com.nestor87.bugblock.data.BBSharedPreferences
 import com.nestor87.bugblock.reporter.Reporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -19,6 +20,7 @@ import java.io.File
 internal class ReportIssueActivity : AppCompatActivity() {
 
     private val viewModel = ReportIssueViewModel()
+    private lateinit var bbSharedPreferences: BBSharedPreferences
 
     lateinit var sendReportButton: CardView
     lateinit var screenshotImageView: ImageView
@@ -26,7 +28,7 @@ internal class ReportIssueActivity : AppCompatActivity() {
     lateinit var removeScreenshotButton: ImageView
     lateinit var includeScreenshotMessageTextView: TextView
     lateinit var emailEditText: EditText
-    lateinit var desriptionEditText: EditText
+    lateinit var descriptionEditText: EditText
 
     companion object {
         var running = false
@@ -39,30 +41,23 @@ internal class ReportIssueActivity : AppCompatActivity() {
         setContentView(R.layout.activity_report_issue)
 
         running = true
+        bbSharedPreferences = BBSharedPreferences(this)
 
         sendReportButton = findViewById(R.id.sendReportButton)
         screenshotImageView = findViewById(R.id.screenshotImage)
         exitButton = findViewById(R.id.closeButton)
-        removeScreenshotButton = findViewById(R.id.removeScreenshotButton)
         includeScreenshotMessageTextView = findViewById(R.id.includeScreenshotMessage)
         emailEditText = findViewById(R.id.emailEditText)
-        desriptionEditText = findViewById(R.id.descriptionEditText)
+        descriptionEditText = findViewById(R.id.descriptionEditText)
 
-        if (intent.getBooleanExtra("containsScreenshot", false)) {
-            val screenshotBitmap = viewModel.loadBitmap(this, "screenshot")!!
-            screenshotImageView.setImageBitmap(screenshotBitmap)
-            window.decorView.post {
-                screenshotImageView.layoutParams.width =
-                    (screenshotImageView.height.toFloat() / screenshotBitmap.height * screenshotBitmap.width).toInt()
-                screenshotImageView.requestLayout()
-            }
-        } else {
-            removeImageFromReport()
+        val screenshotBitmap = viewModel.loadBitmap(this, "screenshot")!!
+        screenshotImageView.setImageBitmap(screenshotBitmap)
+        window.decorView.post {
+            screenshotImageView.layoutParams.width =
+                (screenshotImageView.height.toFloat() / screenshotBitmap.height * screenshotBitmap.width).toInt()
+            screenshotImageView.requestLayout()
         }
-
-        removeScreenshotButton.setOnClickListener {
-            removeImageFromReport()
-        }
+        emailEditText.setText(bbSharedPreferences.userEmail)
 
         exitButton.setOnClickListener {
             finish()
@@ -94,12 +89,13 @@ internal class ReportIssueActivity : AppCompatActivity() {
         }
 
         sendReportButton.setOnClickListener {
-            if (viewModel.checkFieldsNotEmpty(this, emailEditText, desriptionEditText, screenshotImageView.visibility == View.VISIBLE)) {
+            if (viewModel.checkFieldsNotEmpty(this, emailEditText, descriptionEditText, screenshotImageView.visibility == View.VISIBLE)) {
                 changeProgressBarVisibility(true)
+                bbSharedPreferences.userEmail = emailEditText.text.toString()
                 GlobalScope.launch(Dispatchers.Main) {
                     val success = Reporter.reportIssue(
                         emailEditText.text.toString(),
-                        desriptionEditText.text.toString(),
+                        descriptionEditText.text.toString(),
                         if (screenshotImageView.visibility == View.VISIBLE)
                             File(filesDir, "screenshot.png")
                         else
@@ -115,12 +111,6 @@ internal class ReportIssueActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun removeImageFromReport() {
-        screenshotImageView.visibility = View.GONE
-        removeScreenshotButton.visibility = View.GONE
-        includeScreenshotMessageTextView.visibility = View.GONE
     }
 
     private fun changeProgressBarVisibility(visible: Boolean) {
