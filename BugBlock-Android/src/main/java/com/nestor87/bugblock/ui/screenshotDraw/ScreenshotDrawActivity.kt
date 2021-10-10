@@ -210,9 +210,7 @@ internal class ScreenshotDrawActivity : AppCompatActivity() {
         addDescriptionButton.setOnClickListener {
             screenshotCanvasView.capture(window) { resultBitmap ->
                 viewModel.saveBitmap(this, viewModel.addRoundedCornersToBitmap(this, resultBitmap, 10F), "screenshot")
-                val intent = Intent(this, ReportIssueActivity::class.java)
-                intent.putExtra("containsScreenshot", true)
-                startActivity(intent)
+                startActivity(Intent(this, ReportIssueActivity::class.java))
             }
         }
     }
