@@ -19,7 +19,7 @@ internal class ConsoleLogger {
                     ConsoleLogLevel.ERROR -> Log.e(tag, message)
                 }
             }
-            _consoleLogs.add(ConsoleData(string = "$tag: $message", logLevel = logLevel))
+            _consoleLogs.add(ConsoleData(message = "$tag: $message", logLevel = logLevel))
         }
     }
 }
