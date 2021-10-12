@@ -11,7 +11,7 @@ data class ConsoleData (
     ).format(
         Date()
     ),
-    var description: String?,
+    var message: String?,
     @field:SerializedName("log_level")
     var logLevel: ConsoleLogLevel = ConsoleLogLevel.INFO
 )
