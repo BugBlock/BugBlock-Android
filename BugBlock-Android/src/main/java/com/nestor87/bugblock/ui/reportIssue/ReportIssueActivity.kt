@@ -53,6 +53,8 @@ internal class ReportIssueActivity : AppCompatActivity() {
         val screenshotBitmap = viewModel.loadBitmap(this, "screenshot")!!
         screenshotImageView.setImageBitmap(screenshotBitmap)
         window.decorView.post {
+            screenshotImageView.layoutParams.height =
+                viewModel.calculateScreenshotImageHeight(30F, descriptionEditText, sendReportButton).toInt()
             screenshotImageView.layoutParams.width =
                 (screenshotImageView.height.toFloat() / screenshotBitmap.height * screenshotBitmap.width).toInt()
             screenshotImageView.requestLayout()
