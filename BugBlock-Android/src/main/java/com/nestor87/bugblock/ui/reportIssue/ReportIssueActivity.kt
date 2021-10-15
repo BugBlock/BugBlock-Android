@@ -40,6 +40,8 @@ internal class ReportIssueActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_report_issue)
 
+        supportActionBar?.hide()
+
         running = true
         bbSharedPreferences = BBSharedPreferences(this)
 

@@ -6,34 +6,10 @@
     android:layout_height="match_parent"
     tools:context="com.nestor87.bugblock.ui.screenshotDraw.ScreenshotDrawActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/toolbar"
+    <include
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@color/toolbar_gray"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/closeButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_remove_icon"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title"
-            android:textColor="@color/black"
-            android:textSize="22sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/closeButton"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar" />
 
     <ImageView
         android:id="@+id/undoButton"

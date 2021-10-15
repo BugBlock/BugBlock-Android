@@ -54,6 +54,8 @@ internal class ScreenshotDrawActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_screenshot_draw)
 
+        supportActionBar?.hide()
+
         closeButton = findViewById(R.id.closeButton)
         screenshotCanvasView = findViewById(R.id.screenshot)
         brushButton = findViewById(R.id.brushButton)
