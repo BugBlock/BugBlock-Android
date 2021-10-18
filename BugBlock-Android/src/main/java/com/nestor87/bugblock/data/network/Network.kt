@@ -10,15 +10,15 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object Network {
     val retrofit by lazy {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+//        val loggingInterceptor = HttpLoggingInterceptor()
+//        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
 
         Retrofit.Builder()
             .baseUrl("https://api.bugblock.io")
             .addConverterFactory(GsonConverterFactory.create())
             .client(
                 OkHttpClient.Builder()
-                    .addInterceptor(loggingInterceptor)
+//                    .addInterceptor(loggingInterceptor)
                     .build()
             )
             .build()
