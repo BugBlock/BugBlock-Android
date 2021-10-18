@@ -57,6 +57,10 @@ class BBLog(val context: Context) {
         if (sharedPreferences.userUUID == null) {
             sharedPreferences.userUUID = UUID.randomUUID().toString()
         }
+
+        GlobalScope.launch {
+            Reporter.sendMetadata()
+        }
     }
 
     fun user(user: BBUser) {

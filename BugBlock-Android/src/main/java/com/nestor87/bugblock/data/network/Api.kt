@@ -15,4 +15,6 @@ interface Api {
     @PUT("reporter/issue/{id}/image")
     suspend fun addImageToIssue(@Header("AppId") appId: String, @Path("id") issueId: Int, @Part image: MultipartBody.Part): AddImageToIssueResponse
 
+    @POST("reporter/metadata")
+    suspend fun sendMetadata(@Header("AppId") appId: String, @Body metadata: Metadata)
 }

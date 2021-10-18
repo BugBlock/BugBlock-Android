@@ -61,5 +61,12 @@ internal class Reporter {
             )
             Log.e("ReportCrash", crashResponse.error ?: "")
         }
+
+        suspend fun sendMetadata() {
+            Network.retrofit.sendMetadata(
+                BBLog.appId,
+                BBLog.metadata
+            )
+        }
     }
 }
