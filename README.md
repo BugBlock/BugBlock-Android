@@ -1,4 +1,6 @@
 # BugBlock-Android
+[![](https://jitpack.io/v/BugBlock/BugBlock-Android.svg)](https://jitpack.io/#BugBlock/BugBlock-Android)
+
 
 ## Installation
 
@@ -14,7 +16,7 @@ allprojects {
 Add the dependency:
 ``` gradle
 dependencies {
-    implementation 'com.github.BugBlock:BugBlock-Android:0.0.6-alpha'
+    implementation 'com.github.BugBlock:BugBlock-Android:0.0.7-alpha'
 }
 ```
 
