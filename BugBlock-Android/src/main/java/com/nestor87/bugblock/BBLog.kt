@@ -1,5 +1,6 @@
 package com.nestor87.bugblock
 
+import android.app.Activity
 import android.content.Context
 import android.os.Build
 import com.nestor87.bugblock.data.BBConfiguration
@@ -19,8 +20,10 @@ import kotlinx.coroutines.launch
 import okhttp3.Interceptor
 import java.util.*
 
-class BBLog(val context: Context) {
+class BBLog {
     private lateinit var sharedPreferences: BBSharedPreferences
+    private lateinit var shakeObserver: ShakeObserver;
+    private lateinit var screenshotObserver: ScreenshotObserver;
 
     companion object {
         internal lateinit var metadata: Metadata
@@ -28,30 +31,34 @@ class BBLog(val context: Context) {
         internal lateinit var configuration: BBConfiguration
     }
 
-    val okhttpLoggingInterceptor: Interceptor get() {
-        return if (configuration.serverLoggingEnabled) {
-            NetworkLogger.loggingInterceptor
-        } else {
-            NetworkLogger.emptyInterceptor
+    val okhttpLoggingInterceptor: Interceptor
+        get() {
+            return if (configuration.serverLoggingEnabled) {
+                NetworkLogger.loggingInterceptor
+            } else {
+                NetworkLogger.emptyInterceptor
+            }
         }
+
+    constructor(context: Context) {
+        sharedPreferences = BBSharedPreferences(context)
+        metadata = getMetadata(context)
+        screenshotObserver = ScreenshotObserver(context)
+        shakeObserver = ShakeObserver(context)
     }
 
     fun start(appId: String, configuration: BBConfiguration) {
         BBLog.appId = appId
         BBLog.configuration = configuration
-        sharedPreferences = BBSharedPreferences(context)
-        metadata = getMetadata()
 
         if (configuration.invokeByScreenshot) {
-            val screenshotObserver = ScreenshotObserver(context)
             screenshotObserver.start()
         }
         if (configuration.invokeByShake) {
-            val shakeObserver = ShakeObserver(context)
             shakeObserver.start()
         }
         if (configuration.crashReportingEnabled) {
-            CrashLogger.startCrashDetecting(context)
+            CrashLogger.startCrashDetecting()
         }
 
         if (sharedPreferences.userUUID == null) {
@@ -60,6 +67,15 @@ class BBLog(val context: Context) {
 
         GlobalScope.launch {
             Reporter.sendMetadata()
+        }
+    }
+
+    fun setForegroundActivity(activity: Activity) {
+        if (configuration.invokeByScreenshot) {
+            screenshotObserver.setForegroundActivity(activity)
+        }
+        if (configuration.invokeByShake) {
+            shakeObserver.setForegroundActivity(activity)
         }
     }
 
@@ -83,7 +99,8 @@ class BBLog(val context: Context) {
         }
     }
 
-    private fun getMetadata(): Metadata {
+
+    private fun getMetadata(context: Context): Metadata {
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
         return Metadata(
             osVersion = Build.VERSION.SDK_INT,

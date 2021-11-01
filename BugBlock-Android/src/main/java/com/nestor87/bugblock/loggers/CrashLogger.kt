@@ -9,11 +9,8 @@ import kotlinx.coroutines.launch
 
 internal class CrashLogger {
     companion object {
-        private lateinit var sharedPreferences: BBSharedPreferences
 
-        fun startCrashDetecting(context: Context) {
-            sharedPreferences = BBSharedPreferences(context)
-
+        fun startCrashDetecting() {
             val defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
             Thread.setDefaultUncaughtExceptionHandler { t, e ->
                 var crashLogs = Log.getStackTraceString(e)
@@ -24,7 +21,6 @@ internal class CrashLogger {
                     Reporter.reportCrash(crashLogs)
                     defaultUncaughtExceptionHandler?.uncaughtException(t, e)
                 }
-
             }
         }
     }

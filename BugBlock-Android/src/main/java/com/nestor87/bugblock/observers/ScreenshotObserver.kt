@@ -17,6 +17,8 @@ internal class ScreenshotObserver(val context: Context) {
 
     private lateinit var contentObserver: ContentObserver
     private var lastUri = ""
+    private var foregroundActivity: Activity? = null
+
 
     fun start() {
         startObserveScreenshot()
@@ -24,6 +26,10 @@ internal class ScreenshotObserver(val context: Context) {
 
     fun stop() {
         context.contentResolver.unregisterContentObserver(contentObserver)
+    }
+
+    fun setForegroundActivity(activity: Activity?) {
+        foregroundActivity = activity
     }
 
 
@@ -37,13 +43,15 @@ internal class ScreenshotObserver(val context: Context) {
                 if (uri.toString() != lastUri) {
                     lastUri = uri.toString()
 
-                    vibrate(300L)
-                    saveBitmap(
-                        context,
-                        takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
-                        "screenshot"
-                    )
-                    context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
+                    if (foregroundActivity != null) {
+                        vibrate(300L)
+                        saveBitmap(
+                            context,
+                            takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
+                            "screenshot"
+                        )
+                        context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
+                    }
                 }
             }
         }
@@ -105,7 +113,7 @@ internal class ScreenshotObserver(val context: Context) {
     }
 
     private fun takeScreenshot(): Bitmap {
-        val rootView = (context as Activity).window.decorView.rootView
+        val rootView = foregroundActivity!!.window.decorView.rootView
         val bitmap = Bitmap.createBitmap(
             rootView.width,
             rootView.height,

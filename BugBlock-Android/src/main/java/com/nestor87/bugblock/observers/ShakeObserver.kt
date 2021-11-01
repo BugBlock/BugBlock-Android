@@ -1,7 +1,8 @@
 package com.nestor87.bugblock.observers
 
 import android.app.Activity
-import android.app.Service
+import android.app.ActivityManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,7 +12,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Build
-import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import com.nestor87.bugblock.ui.reportIssue.ReportIssueActivity
@@ -27,6 +27,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
     private var lastX = 0f
     private var lastY = 0f
     private var lastZ = 0f
+    private var foregroundActivity: Activity? = null
 
     companion object {
         private const val MIN_FORCE = 11
@@ -44,6 +45,10 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
 
     fun stop() {
         sensorManager?.unregisterListener(this)
+    }
+
+    fun setForegroundActivity(activity: Activity?) {
+        foregroundActivity = activity
     }
 
     override fun onSensorChanged(event: SensorEvent) {
@@ -96,7 +101,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
     }
 
     private fun onShakeDetected() {
-        if (!ReportIssueActivity.running) {
+        if (!ReportIssueActivity.running && foregroundActivity != null) {
             vibrate(300L)
             saveBitmap(
                 context,
@@ -117,7 +122,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
     }
 
     private fun takeScreenshot(): Bitmap {
-        val rootView = (context as Activity).window.decorView.rootView
+        val rootView = foregroundActivity!!.window.decorView.rootView
         val bitmap = Bitmap.createBitmap(
             rootView.width,
             rootView.height,
