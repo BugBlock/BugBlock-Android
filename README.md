@@ -42,13 +42,21 @@ data class BBConfiguration (
 )
 ```
 
-Then create an instance of BBLog  and start the library: 
+Then create an instance of `BBLog` and start the library: 
 ``` kotlin
 val bbLog = BBLog(context)
 bbLog.start(appId = "", configuration = config)
 ```
 
-Set user data(optional):
+Then you need to add the code below in `onResume` method of every activity or fragment (for screenshot taking)
+``` kotlin
+bbLog.setForegroundActivity(this) // for activity
+```
+``` kotlin
+bbLog.setForegroundActivity(activity) // for fragment 
+```
+
+Set user data (optional):
 ``` kotlin
 bbLog.user(
    BBUser(
