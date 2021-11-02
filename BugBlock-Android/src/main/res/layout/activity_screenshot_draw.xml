@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:gravity="center"
-        android:minHeight="?android:attr/actionBarSize"
+        android:minHeight="53dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
