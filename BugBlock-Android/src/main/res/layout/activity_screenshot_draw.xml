@@ -6,10 +6,33 @@
     android:layout_height="match_parent"
     tools:context="com.nestor87.bugblock.ui.screenshotDraw.ScreenshotDrawActivity">
 
-    <include
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        layout="@layout/toolbar" />
+        android:background="?attr/colorPrimary"
+        android:gravity="center"
+        android:minHeight="?android:attr/actionBarSize"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/closeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_remove_icon"
+            app:tint="?colorOnPrimary" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/title"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="23sp"
+            android:textStyle="bold" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <ImageView
         android:id="@+id/undoButton"
@@ -19,7 +42,8 @@
         android:layout_marginStart="20dp"
         android:src="@drawable/undo_arrow"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        android:layout_marginLeft="20dp" />
 
     <ImageView
         android:id="@+id/brushButton"
@@ -39,7 +63,8 @@
         android:layout_marginEnd="20dp"
         android:src="@drawable/redo_arrow"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        android:layout_marginRight="20dp" />
 
     <LinearLayout
         android:id="@+id/colorSelectButtonsLinearLayout"
@@ -121,7 +146,8 @@
             android:text="@string/description_button_text"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="25sp" />
+            android:textSize="25sp"
+            android:gravity="center_horizontal" />
     </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
