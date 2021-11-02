@@ -16,7 +16,7 @@ allprojects {
 Add the dependency:
 ``` gradle
 dependencies {
-    implementation 'com.github.BugBlock:BugBlock-Android:0.0.8-alpha'
+    implementation 'com.github.BugBlock:BugBlock-Android:0.0.10-alpha'
 }
 ```
 
@@ -68,6 +68,7 @@ bbLog.user(
 ```
 
 ### Report simulation programmatically
+Toolbar background color in the report activities is `colorPrimary`, text on it is `colorOnPrimary` 
 
 ``` kotlin
 bbLog.report(email = "test@example.com", description = "issue description")
