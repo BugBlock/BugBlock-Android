@@ -47,7 +47,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
         sensorManager?.unregisterListener(this)
     }
 
-    fun setForegroundActivity(activity: Activity?) {
+    fun setForegroundActivity(activity: Activity) {
         foregroundActivity = activity
     }
 
@@ -108,7 +108,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
                 takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
                 "screenshot"
             )
-            context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
+            foregroundActivity!!.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
         }
     }
 

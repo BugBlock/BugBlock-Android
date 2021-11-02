@@ -28,7 +28,7 @@ internal class ScreenshotObserver(val context: Context) {
         context.contentResolver.unregisterContentObserver(contentObserver)
     }
 
-    fun setForegroundActivity(activity: Activity?) {
+    fun setForegroundActivity(activity: Activity) {
         foregroundActivity = activity
     }
 
@@ -50,7 +50,7 @@ internal class ScreenshotObserver(val context: Context) {
                             takeScreenshot(), // take screenshot of root view (to get screenshot without permission)
                             "screenshot"
                         )
-                        context.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
+                        foregroundActivity!!.startActivity(Intent(context, ScreenshotDrawActivity::class.java))
                     }
                 }
             }
