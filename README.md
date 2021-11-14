@@ -4,9 +4,9 @@ BugBlock Android SDK is providing you with the ability to get quick bug reports 
 [![](https://jitpack.io/v/BugBlock/BugBlock-Android.svg)](https://jitpack.io/#BugBlock/BugBlock-Android)
 
 
-## Le's get started.
+## Let's get started.
 
-Add following repositoty to your root `build.gradle` at the end of repositories:
+Add following repository to your root `build.gradle` at the end of repositories:
 ``` gradle
 allprojects {
     repositories {
@@ -75,7 +75,7 @@ val retrofit = Retrofit.Builder()
 
 ## Console logging
 
-To prevent you from reading long lists of console logs produced by the iOS application. You can pass only the logs you need. It's pretty easy to make a custom console log: 
+To prevent you from reading long lists of console logs produced by the application. You can pass only the logs you need. It's pretty easy to make a custom console log: 
 
 
 
