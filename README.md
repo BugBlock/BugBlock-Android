@@ -29,7 +29,7 @@ After importing an SDK you need to import the project in your App:
 
 ``` kotlin
 val config = BBConfiguration()
-val bbLog = BBLog(context)
+val bbLog = BBLog(application)
 bbLog.start(appId = "", configuration = config)
 ```
 
@@ -118,17 +118,3 @@ By using this feature you can also send a silent report with user acknowledgment
 ``` kotlin
 bbLog.report(email = "test@example.com", description = "issue description")
 ```
-
-
--------
-Then you need to add the code below in `onResume` method of every activity or fragment (for screenshot taking)
-``` kotlin
-bbLog.setForegroundActivity(this) // for activity
-```
-``` kotlin
-bbLog.setForegroundActivity(activity) // for fragment 
-```
-
-
-
-
