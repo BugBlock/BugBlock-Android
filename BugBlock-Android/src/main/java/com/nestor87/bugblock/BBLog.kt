@@ -1,8 +1,10 @@
 package com.nestor87.bugblock
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import com.nestor87.bugblock.data.BBConfiguration
 import com.nestor87.bugblock.data.BBSharedPreferences
 import com.nestor87.bugblock.data.BBUser
@@ -20,10 +22,10 @@ import kotlinx.coroutines.launch
 import okhttp3.Interceptor
 import java.util.*
 
-class BBLog {
-    private lateinit var sharedPreferences: BBSharedPreferences
-    private lateinit var shakeObserver: ShakeObserver;
-    private lateinit var screenshotObserver: ScreenshotObserver;
+class BBLog : Application.ActivityLifecycleCallbacks {
+    private var sharedPreferences: BBSharedPreferences
+    private var shakeObserver: ShakeObserver
+    private var screenshotObserver: ScreenshotObserver
 
     companion object {
         internal lateinit var metadata: Metadata
@@ -36,15 +38,17 @@ class BBLog {
             return if (configuration.serverLoggingEnabled) {
                 NetworkLogger.loggingInterceptor
             } else {
-                NetworkLogger.emptyInterceptor
+                throw Exception("Server logging is disabled. Enable it in the configuration")
             }
         }
 
-    constructor(context: Context) {
-        sharedPreferences = BBSharedPreferences(context)
-        metadata = getMetadata(context)
-        screenshotObserver = ScreenshotObserver(context)
-        shakeObserver = ShakeObserver(context)
+    constructor(application: Application) {
+        sharedPreferences = BBSharedPreferences(application)
+        metadata = getMetadata(application)
+        screenshotObserver = ScreenshotObserver(application)
+        shakeObserver = ShakeObserver(application)
+
+        application.registerActivityLifecycleCallbacks(this)
     }
 
     fun start(appId: String, configuration: BBConfiguration) {
@@ -70,7 +74,7 @@ class BBLog {
         }
     }
 
-    fun setForegroundActivity(activity: Activity) {
+    private fun setForegroundActivity(activity: Activity) {
         if (configuration.invokeByScreenshot) {
             screenshotObserver.setForegroundActivity(activity)
         }
@@ -113,5 +117,27 @@ class BBLog {
             userEmail = sharedPreferences.userEmail,
             userName = sharedPreferences.userName
         )
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+        setForegroundActivity(activity)
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
     }
 }
