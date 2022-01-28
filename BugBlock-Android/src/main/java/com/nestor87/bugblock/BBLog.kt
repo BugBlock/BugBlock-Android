@@ -26,6 +26,7 @@ class BBLog : Application.ActivityLifecycleCallbacks {
     private var sharedPreferences: BBSharedPreferences
     private var shakeObserver: ShakeObserver
     private var screenshotObserver: ScreenshotObserver
+    private var isRunning = false
 
     companion object {
         internal lateinit var metadata: Metadata
@@ -35,6 +36,9 @@ class BBLog : Application.ActivityLifecycleCallbacks {
 
     val okhttpLoggingInterceptor: Interceptor
         get() {
+            if (!isRunning) {
+                throw Exception("BBLog is not started")
+            }
             return if (configuration.serverLoggingEnabled) {
                 NetworkLogger.loggingInterceptor
             } else {
@@ -72,6 +76,21 @@ class BBLog : Application.ActivityLifecycleCallbacks {
         GlobalScope.launch {
             Reporter.sendMetadata()
         }
+
+        isRunning = true
+    }
+
+    fun stop() {
+        if (configuration.invokeByScreenshot) {
+            screenshotObserver.stop()
+        }
+        if (configuration.invokeByShake) {
+            shakeObserver.stop()
+        }
+        if (configuration.crashReportingEnabled) {
+            CrashLogger.stopCrashDetecting()
+        }
+        isRunning = false
     }
 
     private fun setForegroundActivity(activity: Activity) {

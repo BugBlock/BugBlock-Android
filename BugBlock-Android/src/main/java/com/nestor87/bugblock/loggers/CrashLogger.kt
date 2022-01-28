@@ -9,9 +9,12 @@ import kotlinx.coroutines.launch
 
 internal class CrashLogger {
     companion object {
+        private var defaultUncaughtExceptionHandler : Thread.UncaughtExceptionHandler? = null
 
         fun startCrashDetecting() {
-            val defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+            if (defaultUncaughtExceptionHandler == null) {
+                defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+            }
             Thread.setDefaultUncaughtExceptionHandler { t, e ->
                 var crashLogs = Log.getStackTraceString(e)
                 if (e.cause != null) {
@@ -19,6 +22,14 @@ internal class CrashLogger {
                 }
                 GlobalScope.launch {
                     Reporter.reportCrash(crashLogs)
+                    defaultUncaughtExceptionHandler?.uncaughtException(t, e)
+                }
+            }
+        }
+
+        fun stopCrashDetecting() {
+            if (defaultUncaughtExceptionHandler != null) {
+                Thread.setDefaultUncaughtExceptionHandler { t, e ->
                     defaultUncaughtExceptionHandler?.uncaughtException(t, e)
                 }
             }
