@@ -19,7 +19,7 @@ allprojects {
 Add the dependency:
 ``` gradle
 dependencies {
-    implementation 'com.github.BugBlock:BugBlock-Android:0.1.0'
+    implementation 'com.github.BugBlock:BugBlock-Android:0.1.1'
 }
 ```
 
@@ -31,6 +31,8 @@ After importing an SDK you need to import the project in your App:
 val config = BBConfiguration()
 val bbLog = BBLog(application)
 bbLog.start(appId = "", configuration = config)
+....
+bbLog.stop()
 ```
 
 You're done.
