@@ -9,6 +9,7 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.os.*
 import android.provider.MediaStore
+import com.bugblock.BBLog
 import com.bugblock.ui.screenshotDraw.ScreenshotDrawActivity
 import java.io.File
 
@@ -43,7 +44,7 @@ internal class ScreenshotObserver(val context: Context) {
                 if (uri.toString() != lastUri) {
                     lastUri = uri.toString()
 
-                    if (foregroundActivity != null) {
+                    if (foregroundActivity != null && BBLog.configuration.invokeByScreenshot) {
                         vibrate(300L)
                         saveBitmap(
                             context,

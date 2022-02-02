@@ -23,15 +23,56 @@ import okhttp3.Interceptor
 import java.util.*
 
 class BBLog : Application.ActivityLifecycleCallbacks {
-    private var sharedPreferences: BBSharedPreferences
     private var shakeObserver: ShakeObserver
     private var screenshotObserver: ScreenshotObserver
-    private var isRunning = false
+    private var sharedPreferences: BBSharedPreferences
+
 
     companion object {
         internal lateinit var metadata: Metadata
         internal lateinit var appId: String
         internal lateinit var configuration: BBConfiguration
+        private var isRunning = false
+        internal lateinit var application: Application
+
+        fun start(appId: String, configuration: BBConfiguration) {
+            BBLog.appId = appId
+            BBLog.configuration = configuration
+
+            if (configuration.crashReportingEnabled) {
+                CrashLogger.startCrashDetecting()
+            }
+
+            if (BBSharedPreferences(application).userUUID == null) {
+                BBSharedPreferences(application).userUUID = UUID.randomUUID().toString()
+            }
+
+            GlobalScope.launch {
+                Reporter.sendMetadata()
+            }
+
+            isRunning = true
+        }
+
+
+        fun stop() {
+            configuration.consoleLoggingEnabled = false
+            configuration.crashReportingEnabled = false
+            configuration.invokeByScreenshot = false
+            configuration.invokeByShake = false
+            configuration.serverLoggingEnabled = false
+
+            if (configuration.crashReportingEnabled) {
+                CrashLogger.stopCrashDetecting()
+            }
+            isRunning = false
+        }
+
+        fun consoleLog(
+            tag: String,
+            message: String,
+            logLevel: ConsoleLogLevel = ConsoleLogLevel.INFO
+        ) = ConsoleLogger.log(configuration, tag, message, logLevel)
     }
 
     val okhttpLoggingInterceptor: Interceptor
@@ -46,51 +87,17 @@ class BBLog : Application.ActivityLifecycleCallbacks {
             }
         }
 
-    constructor(application: Application) {
+    constructor (application: Application) {
+        BBLog.application = application
         sharedPreferences = BBSharedPreferences(application)
         metadata = getMetadata(application)
         screenshotObserver = ScreenshotObserver(application)
         shakeObserver = ShakeObserver(application)
 
+        screenshotObserver.start()
+        shakeObserver.start()
+
         application.registerActivityLifecycleCallbacks(this)
-    }
-
-    fun start(appId: String, configuration: BBConfiguration) {
-        BBLog.appId = appId
-        BBLog.configuration = configuration
-
-        if (configuration.invokeByScreenshot) {
-            screenshotObserver.start()
-        }
-        if (configuration.invokeByShake) {
-            shakeObserver.start()
-        }
-        if (configuration.crashReportingEnabled) {
-            CrashLogger.startCrashDetecting()
-        }
-
-        if (sharedPreferences.userUUID == null) {
-            sharedPreferences.userUUID = UUID.randomUUID().toString()
-        }
-
-        GlobalScope.launch {
-            Reporter.sendMetadata()
-        }
-
-        isRunning = true
-    }
-
-    fun stop() {
-        if (configuration.invokeByScreenshot) {
-            screenshotObserver.stop()
-        }
-        if (configuration.invokeByShake) {
-            shakeObserver.stop()
-        }
-        if (configuration.crashReportingEnabled) {
-            CrashLogger.stopCrashDetecting()
-        }
-        isRunning = false
     }
 
     private fun setForegroundActivity(activity: Activity) {
@@ -109,12 +116,6 @@ class BBLog : Application.ActivityLifecycleCallbacks {
         sharedPreferences.userName = user.name
         sharedPreferences.userEmail = user.email
     }
-
-    fun consoleLog(
-        tag: String,
-        message: String,
-        logLevel: ConsoleLogLevel = ConsoleLogLevel.INFO
-    ) = ConsoleLogger.log(configuration, tag, message, logLevel)
 
     fun report(email: String, description: String) {
         GlobalScope.launch {

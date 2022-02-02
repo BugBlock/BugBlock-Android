@@ -12,6 +12,7 @@ import android.hardware.SensorManager
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import com.bugblock.BBLog
 import com.bugblock.ui.reportIssue.ReportIssueActivity
 import com.bugblock.ui.screenshotDraw.ScreenshotDrawActivity
 import kotlin.math.abs
@@ -99,7 +100,7 @@ internal class ShakeObserver(val context: Context): SensorEventListener {
     }
 
     private fun onShakeDetected() {
-        if (!ReportIssueActivity.running && foregroundActivity != null) {
+        if (!ReportIssueActivity.running && foregroundActivity != null && BBLog.configuration.invokeByShake) {
             vibrate(300L)
             saveBitmap(
                 context,
