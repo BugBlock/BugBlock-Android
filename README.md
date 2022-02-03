@@ -19,7 +19,7 @@ allprojects {
 Add the dependency:
 ``` gradle
 dependencies {
-    implementation 'com.github.BugBlock:BugBlock-Android:0.1.2'
+    implementation 'com.github.BugBlock:BugBlock-Android:0.1.3'
 }
 ```
 
