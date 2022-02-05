@@ -5,7 +5,7 @@ import com.bugblock.data.dto.NetworkRequest
 import com.bugblock.data.dto.NetworkResponse
 import okhttp3.Interceptor
 import okhttp3.Request
-import okhttp3.RequestBody
+import okio.Buffer
 import java.io.IOException
 
 class NetworkLogger {
@@ -40,9 +40,9 @@ class NetworkLogger {
 
         private fun requestBodyToString(request: Request): String? {
             return try {
-                val copy: RequestBody? = request.newBuilder().build().body
-                val buffer = okio.Buffer()
-                if (copy != null) copy.writeTo(buffer) else return ""
+                val copy = request.newBuilder().build()
+                val buffer = Buffer()
+                copy.body!!.writeTo(buffer)
                 buffer.readUtf8()
             } catch (e: IOException) {
                 "did not work"
