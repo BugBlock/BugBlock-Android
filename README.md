@@ -19,7 +19,7 @@ allprojects {
 Add the dependency:
 ``` gradle
 dependencies {
-    implementation 'com.github.BugBlock:BugBlock-Android:0.1.1'
+    implementation 'com.github.BugBlock:BugBlock-Android:0.1.3'
 }
 ```
 
@@ -30,9 +30,9 @@ After importing an SDK you need to import the project in your App:
 ``` kotlin
 val config = BBConfiguration()
 val bbLog = BBLog(application)
-bbLog.start(appId = "", configuration = config)
+BBLog.start(appId = "", configuration = config)
 ....
-bbLog.stop()
+BBLog.stop()
 ```
 
 You're done.
@@ -83,7 +83,7 @@ To prevent you from reading long lists of console logs produced by the applicati
 
 Console log example:
 ``` kotlin
-bbLog.consoleLog(tag = "tag", message = "test message", logLevel = ConsoleLogLevel.INFO)
+BBLog.consoleLog(tag = "tag", message = "test message", logLevel = ConsoleLogLevel.INFO)
 ```
 
 To make it easy to differentiate log by level we've created those levels:
