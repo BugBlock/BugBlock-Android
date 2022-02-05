@@ -4,6 +4,7 @@ import com.bugblock.data.dto.NetworkData
 import com.bugblock.data.dto.NetworkRequest
 import com.bugblock.data.dto.NetworkResponse
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.RequestBody
 import java.io.IOException
 
@@ -22,11 +23,11 @@ class NetworkLogger {
                         statusCode = response.code,
                         request = NetworkRequest(
                             headers = request.headers.toMap(),
-                            body = requestBodyToString(request.body) ?: ""
+                            body = requestBodyToString(request) ?: ""
                         ),
                         response = NetworkResponse(
                             headers = response.headers.toMap(),
-                            body = response.peekBody(2048).string()
+                            body = response.body?.string() ?: ""
                         )
                     )
                 )
@@ -37,15 +38,16 @@ class NetworkLogger {
             return@Interceptor it.proceed(it.request())
         }
 
-        private fun requestBodyToString(request: RequestBody?): String? {
+        private fun requestBodyToString(request: Request): String? {
             return try {
-                val copy: RequestBody? = request
+                val copy: RequestBody? = request.newBuilder().build().body
                 val buffer = okio.Buffer()
                 if (copy != null) copy.writeTo(buffer) else return ""
                 buffer.readUtf8()
             } catch (e: IOException) {
                 "did not work"
             }
+
         }
 
     }
