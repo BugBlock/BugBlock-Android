@@ -6,7 +6,7 @@ import java.util.*
 
 data class ConsoleData (
     val timestamp: String? = SimpleDateFormat(
-        "yyyy-MM-dd HH:mm:ss Z",
+        "yyyy-MM-dd'T'HH:mm'Z'",
         Locale.getDefault()
     ).format(
         Date()
