@@ -11,6 +11,7 @@
     <color name="icon_blue">#3E80FF</color>
     <color name="icon_blue_dark">#1D60AA</color>
     <color name="light_gray">#D3D3D3</color>
+    <color name="gray">#A0A0A0</color>
 
     <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>

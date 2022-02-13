@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".ui.reportIssue.ReportIssueActivity">
 
     <androidx.appcompat.widget.Toolbar
@@ -43,6 +44,8 @@
         android:inputType="textEmailAddress"
         android:maxLines="1"
         android:padding="20dp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <EditText
@@ -53,6 +56,8 @@
         android:hint="@string/notes"
         android:lines="6"
         android:padding="20dp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"
         app:layout_constraintTop_toBottomOf="@+id/emailEditText" />
 
     <LinearLayout
@@ -81,7 +86,8 @@
             android:text="@string/include_screenshot_message"
             android:textAlignment="center"
             android:paddingLeft="5dp"
-            android:paddingRight="0dp" />
+            android:paddingRight="0dp"
+            android:textColor="@color/gray" />
     </LinearLayout>
 
     <androidx.cardview.widget.CardView
