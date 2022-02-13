@@ -27,7 +27,7 @@ class NetworkLogger {
                         ),
                         response = NetworkResponse(
                             headers = response.headers.toMap(),
-                            body = response.body?.string() ?: ""
+                            body = response.peekBody(2048).string()
                         )
                     )
                 )
