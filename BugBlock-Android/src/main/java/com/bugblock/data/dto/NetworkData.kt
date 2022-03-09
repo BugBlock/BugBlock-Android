@@ -7,7 +7,7 @@ import java.util.*
 
 data class NetworkData (
     val timestamp: String? = SimpleDateFormat(
-        "yyyy-MM-dd'T'HH:mm'Z'",
+        "yyyy-MM-dd HH:mm:ss",
         Locale.getDefault()
     ).format(
         Date()
