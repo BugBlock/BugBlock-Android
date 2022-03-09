@@ -34,10 +34,6 @@ class NetworkLogger {
                 return@Interceptor response
         }
 
-        val emptyInterceptor = Interceptor {
-            return@Interceptor it.proceed(it.request())
-        }
-
         private fun requestBodyToString(request: Request): String? {
             return try {
                 val copy = request.newBuilder().build()
